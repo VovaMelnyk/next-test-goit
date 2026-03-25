@@ -1,7 +1,15 @@
 import { config, fields, singleton } from "@keystatic/core";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export default config({
-  storage: { kind: "local" },
+  storage: isProd
+    ? {
+        kind: "github",
+        repo: "VovaMelnyk/next-test-goit",
+        branchPrefix: "keystatic-landing-a/",
+      }
+    : { kind: "local" },
   singletons: {
     hero: singleton({
       label: "Hero",
