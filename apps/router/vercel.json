@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/landing-a/:path*",
-      "destination": "https://landing-a-placeholder.vercel.app/landing-a/:path*"
+      "destination": "https://next-test-goit-landing-a.vercel.app/landing-a/:path*"
     },
     {
       "source": "/landing-b/:path*",
-      "destination": "https://landing-b-placeholder.vercel.app/landing-b/:path*"
+      "destination": "https://next-test-goit-landing-b.vercel.app/landing-b/:path*"
     }
   ]
 }
