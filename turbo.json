@@ -6,7 +6,15 @@
       "cache": false
     },
     "build": {
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "NEXT_PUBLIC_BASE_PATH",
+        "ADMIN_USER",
+        "ADMIN_PASS",
+        "KEYSTATIC_GITHUB_CLIENT_ID",
+        "KEYSTATIC_GITHUB_CLIENT_SECRET",
+        "KEYSTATIC_SECRET"
+      ]
     },
     "lint": {}
   }
