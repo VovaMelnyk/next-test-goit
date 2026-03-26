@@ -33,7 +33,10 @@ export function middleware(request: NextRequest) {
       url.search = request.nextUrl.search;
 
       return NextResponse.rewrite(url, {
-        headers: { host: new URL(destination).host },
+        headers: {
+          host: new URL(destination).host,
+          "x-forwarded-host": request.headers.get("host") || "",
+        },
       });
     }
   }
@@ -51,7 +54,10 @@ export function middleware(request: NextRequest) {
       url.search = request.nextUrl.search;
 
       return NextResponse.rewrite(url, {
-        headers: { host: new URL(destination).host },
+        headers: {
+          host: new URL(destination).host,
+          "x-forwarded-host": request.headers.get("host") || "",
+        },
       });
     }
   }
