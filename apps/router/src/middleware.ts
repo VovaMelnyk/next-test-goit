@@ -5,6 +5,15 @@ const LANDING_MAP: Record<string, string> = {
   "landing-b": "https://next-test-goit-landing-b.vercel.app",
 };
 
+function getLandingFromReferer(referer: string): [string, string] | null {
+  for (const [prefix, destination] of Object.entries(LANDING_MAP)) {
+    if (referer.includes(`/${prefix}`)) {
+      return [prefix, destination];
+    }
+  }
+  return null;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -20,19 +29,24 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Keystatic API calls without basePath: /api/keystatic/...
-  // Determine which landing based on Referer header
-  if (pathname.startsWith("/api/keystatic")) {
+  // Keystatic routes without basePath: /keystatic/... or /api/keystatic/...
+  // After basePath stripping, Keystatic navigates to /keystatic/... URLs
+  // Determine which landing based on Referer or cookie
+  if (
+    pathname.startsWith("/keystatic") ||
+    pathname.startsWith("/api/keystatic")
+  ) {
     const referer = request.headers.get("referer") || "";
-    for (const [prefix, destination] of Object.entries(LANDING_MAP)) {
-      if (referer.includes(`/${prefix}`)) {
-        const url = new URL(`/${prefix}${pathname}`, destination);
-        url.search = request.nextUrl.search;
+    const landing = getLandingFromReferer(referer);
 
-        return NextResponse.rewrite(url, {
-          headers: { host: new URL(destination).host },
-        });
-      }
+    if (landing) {
+      const [prefix, destination] = landing;
+      const url = new URL(`/${prefix}${pathname}`, destination);
+      url.search = request.nextUrl.search;
+
+      return NextResponse.rewrite(url, {
+        headers: { host: new URL(destination).host },
+      });
     }
   }
 
@@ -40,5 +54,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/landing-a/:path*", "/landing-b/:path*", "/api/keystatic/:path*"],
+  matcher: [
+    "/landing-a/:path*",
+    "/landing-b/:path*",
+    "/keystatic/:path*",
+    "/api/keystatic/:path*",
+  ],
 };

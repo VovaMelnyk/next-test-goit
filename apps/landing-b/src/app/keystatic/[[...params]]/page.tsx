@@ -5,25 +5,33 @@ import { makePage } from "@keystatic/next/ui/app";
 import keystaticConfig from "@/../keystatic.config";
 
 const KeystaticPage = makePage(keystaticConfig);
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export default function Page() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    if (basePath && window.location.pathname.startsWith(basePath)) {
-      // Patch history so Keystatic sees /keystatic/... instead of /landing-b/keystatic/...
-      const stripped = window.location.pathname.slice(basePath.length);
-      window.history.replaceState(null, "", stripped + window.location.search);
-    }
-    // If no branch in URL and github mode, redirect to /keystatic/branch/main
+    const stripped = basePath
+      ? window.location.pathname.replace(new RegExp(`^${basePath}`), "")
+      : window.location.pathname;
+
     if (
       keystaticConfig.storage.kind === "github" &&
-      window.location.pathname === "/keystatic"
+      (stripped === "/keystatic" || stripped === "/keystatic/")
     ) {
-      window.location.replace("/keystatic/branch/main");
+      window.location.replace(`${basePath}/keystatic/branch/main`);
       return;
     }
+
+    if (basePath && window.location.pathname.startsWith(basePath)) {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname.slice(basePath.length) +
+          window.location.search
+      );
+    }
+
     setReady(true);
   }, []);
 
