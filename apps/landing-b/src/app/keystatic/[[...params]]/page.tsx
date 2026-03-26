@@ -6,11 +6,14 @@ import keystaticConfig from "@/../keystatic.config";
 
 const KeystaticPage = makePage(keystaticConfig);
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const landingName = basePath.replace(/^\//, "") || "landing-b";
 
 export default function Page() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    document.cookie = `keystatic-landing=${landingName};path=/;max-age=86400`;
+
     const stripped = basePath
       ? window.location.pathname.replace(new RegExp(`^${basePath}`), "")
       : window.location.pathname;

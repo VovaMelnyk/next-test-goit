@@ -5,12 +5,21 @@ const LANDING_MAP: Record<string, string> = {
   "landing-b": "https://next-test-goit-landing-b.vercel.app",
 };
 
-function getLandingFromReferer(referer: string): [string, string] | null {
+function getLandingFromRequest(request: NextRequest): [string, string] | null {
+  // Check Referer header
+  const referer = request.headers.get("referer") || "";
   for (const [prefix, destination] of Object.entries(LANDING_MAP)) {
     if (referer.includes(`/${prefix}`)) {
       return [prefix, destination];
     }
   }
+
+  // Check cookie (set by Keystatic page)
+  const cookie = request.cookies.get("keystatic-landing")?.value;
+  if (cookie && LANDING_MAP[cookie]) {
+    return [cookie, LANDING_MAP[cookie]];
+  }
+
   return null;
 }
 
@@ -30,14 +39,11 @@ export function middleware(request: NextRequest) {
   }
 
   // Keystatic routes without basePath: /keystatic/... or /api/keystatic/...
-  // After basePath stripping, Keystatic navigates to /keystatic/... URLs
-  // Determine which landing based on Referer or cookie
   if (
     pathname.startsWith("/keystatic") ||
     pathname.startsWith("/api/keystatic")
   ) {
-    const referer = request.headers.get("referer") || "";
-    const landing = getLandingFromReferer(referer);
+    const landing = getLandingFromRequest(request);
 
     if (landing) {
       const [prefix, destination] = landing;

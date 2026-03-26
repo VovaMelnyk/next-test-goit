@@ -6,17 +6,20 @@ import keystaticConfig from "@/../keystatic.config";
 
 const KeystaticPage = makePage(keystaticConfig);
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const landingName = basePath.replace(/^\//, "") || "landing-a";
 
 export default function Page() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // GitHub mode requires /keystatic/branch/<name> in the URL
-    // Redirect if we're at the root /keystatic (or /landing-a/keystatic)
+    // Set cookie so the router knows which landing to proxy Keystatic API calls to
+    document.cookie = `keystatic-landing=${landingName};path=/;max-age=86400`;
+
     const stripped = basePath
       ? window.location.pathname.replace(new RegExp(`^${basePath}`), "")
       : window.location.pathname;
 
+    // GitHub mode requires /keystatic/branch/<name> in the URL
     if (
       keystaticConfig.storage.kind === "github" &&
       (stripped === "/keystatic" || stripped === "/keystatic/")
@@ -26,7 +29,6 @@ export default function Page() {
     }
 
     // Strip basePath from URL so Keystatic sees /keystatic/...
-    // Keystatic reads window.location.pathname and expects /keystatic prefix
     if (basePath && window.location.pathname.startsWith(basePath)) {
       window.history.replaceState(
         null,
