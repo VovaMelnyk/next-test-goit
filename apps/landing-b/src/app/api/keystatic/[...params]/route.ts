@@ -18,7 +18,12 @@ function fixRequestUrl(
       if (basePath && url.pathname.startsWith(basePath)) {
         url.pathname = url.pathname.slice(basePath.length);
       }
-      req = new Request(url.toString(), req);
+      req = new Request(url.toString(), {
+        method: req.method,
+        headers: req.headers,
+        body: req.body,
+        redirect: req.redirect,
+      });
     }
     return handler(req);
   };

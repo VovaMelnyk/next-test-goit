@@ -5,9 +5,6 @@ const { POST: _POST, GET: _GET } = makeRouteHandler({
   config: keystaticConfig,
 });
 
-// Fix request URL for OAuth flow:
-// 1. Use X-Forwarded-Host so callback URLs use the router domain
-// 2. Strip basePath so redirect_uri matches between login and callback
 function fixRequestUrl(
   handler: (req: Request) => Promise<Response>
 ): (req: Request) => Promise<Response> {
@@ -17,14 +14,28 @@ function fixRequestUrl(
       const url = new URL(req.url);
       url.host = forwardedHost;
       url.protocol = "https:";
-      // Strip basePath from the path so it matches the login redirect_uri
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
       if (basePath && url.pathname.startsWith(basePath)) {
         url.pathname = url.pathname.slice(basePath.length);
       }
-      req = new Request(url.toString(), req);
+      req = new Request(url.toString(), {
+        method: req.method,
+        headers: req.headers,
+        body: req.body,
+        redirect: req.redirect,
+      });
     }
-    return handler(req);
+    const res = await handler(req);
+    // Debug: log 401 responses
+    if (res.status === 401) {
+      const body = await res.text();
+      console.error("Keystatic 401:", body, "URL:", req.url);
+      return new Response(body, {
+        status: res.status,
+        headers: res.headers,
+      });
+    }
+    return res;
   };
 }
 
