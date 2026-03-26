@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/keystatic/:path*",
+      "destination": "/landing-a/api/keystatic/:path*"
+    }
+  ]
+}
