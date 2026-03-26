@@ -18,24 +18,19 @@ function fixRequestUrl(
       if (basePath && url.pathname.startsWith(basePath)) {
         url.pathname = url.pathname.slice(basePath.length);
       }
-      req = new Request(url.toString(), {
+      const init: RequestInit = {
         method: req.method,
         headers: req.headers,
-        body: req.body,
         redirect: req.redirect,
-      });
+      };
+      if (req.method !== "GET" && req.method !== "HEAD") {
+        init.body = req.body;
+        // @ts-expect-error duplex is required for streaming bodies
+        init.duplex = "half";
+      }
+      req = new Request(url.toString(), init);
     }
-    const res = await handler(req);
-    // Debug: log 401 responses
-    if (res.status === 401) {
-      const body = await res.text();
-      console.error("Keystatic 401:", body, "URL:", req.url);
-      return new Response(body, {
-        status: res.status,
-        headers: res.headers,
-      });
-    }
-    return res;
+    return handler(req);
   };
 }
 

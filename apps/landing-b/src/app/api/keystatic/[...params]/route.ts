@@ -18,12 +18,17 @@ function fixRequestUrl(
       if (basePath && url.pathname.startsWith(basePath)) {
         url.pathname = url.pathname.slice(basePath.length);
       }
-      req = new Request(url.toString(), {
+      const init: RequestInit = {
         method: req.method,
         headers: req.headers,
-        body: req.body,
         redirect: req.redirect,
-      });
+      };
+      if (req.method !== "GET" && req.method !== "HEAD") {
+        init.body = req.body;
+        // @ts-expect-error duplex is required for streaming bodies
+        init.duplex = "half";
+      }
+      req = new Request(url.toString(), init);
     }
     return handler(req);
   };
