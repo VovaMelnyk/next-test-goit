@@ -5,7 +5,7 @@ const { POST: _POST, GET: _GET } = makeRouteHandler({
   config: keystaticConfig,
 });
 
-function withForwardedHost(
+function fixRequestUrl(
   handler: (req: Request) => Promise<Response>
 ): (req: Request) => Promise<Response> {
   return async (req: Request) => {
@@ -14,11 +14,15 @@ function withForwardedHost(
       const url = new URL(req.url);
       url.host = forwardedHost;
       url.protocol = "https:";
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+      if (basePath && url.pathname.startsWith(basePath)) {
+        url.pathname = url.pathname.slice(basePath.length);
+      }
       req = new Request(url.toString(), req);
     }
     return handler(req);
   };
 }
 
-export const GET = withForwardedHost(_GET);
-export const POST = withForwardedHost(_POST);
+export const GET = fixRequestUrl(_GET);
+export const POST = fixRequestUrl(_POST);
