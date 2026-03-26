@@ -7,6 +7,7 @@ export default config({
     ? {
         kind: "github",
         repo: "VovaMelnyk/next-test-goit",
+        pathPrefix: "apps/landing-b",
         branchPrefix: "keystatic-landing-b/",
       }
     : { kind: "local" },
