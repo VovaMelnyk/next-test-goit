@@ -13,7 +13,8 @@
         "ADMIN_PASS",
         "KEYSTATIC_GITHUB_CLIENT_ID",
         "KEYSTATIC_GITHUB_CLIENT_SECRET",
-        "KEYSTATIC_SECRET"
+        "KEYSTATIC_SECRET",
+        "NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG"
       ]
     },
     "lint": {}
